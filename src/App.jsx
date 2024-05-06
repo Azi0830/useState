@@ -7,6 +7,7 @@ import {
   DashOutlined,
 } from "@ant-design/icons";
 const { Meta } = Card;
+import axios from "axios";
 
 const items = [
   {
@@ -21,6 +22,8 @@ const items = [
 
 function App() {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   // const [caunt, setCount] = useState(1);
 
   // const I = () => {
@@ -33,9 +36,22 @@ function App() {
   // };
 
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/todos")
-      .then((res) => res.json())
-      .then((data) => setData(data));
+    // fetch("https://jsonplaceholder.typicode.com/todos")
+    //   .then((res) => res.json())
+    //   .then((data) => setData(data));
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          "https://jsonplaceholder.typicode.com/todos"
+        );
+        setData(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const onDelete = (id) => {
@@ -50,7 +66,6 @@ function App() {
     }
   };
 
-  const [loading, setLoading] = useState(true);
   const onChange = (checked) => {
     setLoading(!checked);
   };
@@ -70,49 +85,51 @@ function App() {
       {data.map((value) => {
         return (
           <>
-            <Card
-              key={value.id}
-              style={{
-                width: 300,
-              }}
-              cover={
-                <img
-                  alt="example"
-                  src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                />
-              }
-              actions={[
-                <SettingOutlined key="setting" />,
-                <EditOutlined key="edit" />,
-                <Dropdown
-                  overlay={
-                    <Menu onClick={({ key }) => handleMenuClick(key, value.id)}>
-                      {items.map((item) => (
-                        <Menu.Item key={item.key}>{item.label}</Menu.Item>
-                      ))}
-                    </Menu>
-                  }
-                  trigger={["click"]}
-                >
-                  <a onClick={(e) => e.preventDefault()}>
-                    <Space>
-                      Menu
-                      <DashOutlined />
-                    </Space>
-                  </a>
-                </Dropdown>,
-                // <EllipsisOutlined key="ellipsis" />,
-              ]}
-            >
-              <Skeleton loading={loading} avatar active>
+            <Skeleton className="w-[300px]" loading={loading} avatar active>
+              <Card
+                key={value.id}
+                style={{
+                  width: 300,
+                }}
+                cover={
+                  <img
+                    alt="example"
+                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
+                  />
+                }
+                actions={[
+                  <SettingOutlined key="setting" />,
+                  <EditOutlined key="edit" />,
+                  <Dropdown
+                    overlay={
+                      <Menu
+                        onClick={({ key }) => handleMenuClick(key, value.id)}
+                      >
+                        {items.map((item) => (
+                          <Menu.Item key={item.key}>{item.label}</Menu.Item>
+                        ))}
+                      </Menu>
+                    }
+                    trigger={["click"]}
+                  >
+                    <a onClick={(e) => e.preventDefault()}>
+                      <Space>
+                        Menu
+                        <DashOutlined />
+                      </Space>
+                    </a>
+                  </Dropdown>,
+                  // <EllipsisOutlined key="ellipsis" />,
+                ]}
+              >
                 <Meta
                   avatar={
                     <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" />
                   }
                   title={value.title}
                 />
-              </Skeleton>
-            </Card>
+              </Card>
+            </Skeleton>
           </>
         );
       })}
